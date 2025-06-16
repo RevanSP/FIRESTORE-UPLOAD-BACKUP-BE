@@ -6,7 +6,7 @@ const app = new Hono();
 app.use(
   "/*",
   cors({
-    origin: "https://revansp.github.io/FIRESTORE-UPLOAD-BACKUP-FE/",
+    origin: "https://revansp.github.io",
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
   })
