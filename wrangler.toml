@@ -1,5 +1,5 @@
 # wrangler.toml
-name = "firestpre-upload-backup-be"
+name = "firestore-upload-backup-be"
 type = "javascript"
 compatibility_date = "2024-09-23"
 main = "src/index.js"
