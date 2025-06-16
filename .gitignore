@@ -1,2 +1,44 @@
-.vercel
+# Dependencies (Bun and Node.js)
 node_modules
+bun.lockb # Bun's lockfile, similar to package-lock.json
+
+# Build output
+dist
+out
+*.tgz
+
+# Code coverage
+coverage
+*.lcov
+
+# Logs
+logs
+*.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# Dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Caches
+.eslintcache
+.cache
+*.tsbuildinfo
+.wrangler # Cloudflare Wrangler's build/cache directory
+
+# IDEs
+.idea         # IntelliJ based IDEs
+.vscode       # VS Code configuration (optional, if you don't want to share settings)
+
+# OS-specific
+.DS_Store     # macOS Finder folder config
+Thumbs.db     # Windows thumbnail cache
+
+# Runtime specific
+*.js.map      # Source maps (if you're not deploying them)
+
+# Wrangler local development
+.dev.vars     # Environment variables used by Wrangler's local dev server
