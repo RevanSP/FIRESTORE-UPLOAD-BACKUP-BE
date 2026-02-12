@@ -9,7 +9,7 @@ app.use(
     origin: "https://revansp.github.io",
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 let isValidServiceAccount = false;
@@ -33,7 +33,7 @@ function validateServiceAccountStructure(serviceAccount) {
       serviceAccount.hasOwnProperty(field) &&
       serviceAccount[field] !== null &&
       serviceAccount[field] !== undefined &&
-      serviceAccount[field] !== ""
+      serviceAccount[field] !== "",
   );
 
   const isValidType = serviceAccount.type === "service_account";
@@ -107,7 +107,7 @@ async function validateServiceAccountComplete(serviceAccount) {
     console.log("Starting Firebase validation...");
     const firebaseCheck = await validateFirebaseProject(
       serviceAccount,
-      accessToken
+      accessToken,
     );
     validationResult.checks.firebase = firebaseCheck.valid;
 
@@ -123,7 +123,7 @@ async function validateServiceAccountComplete(serviceAccount) {
     console.log("Starting Firestore validation...");
     const firestoreCheck = await validateFirestoreAccess(
       serviceAccount,
-      accessToken
+      accessToken,
     );
     validationResult.checks.firestore = firestoreCheck.valid;
 
@@ -139,7 +139,7 @@ async function validateServiceAccountComplete(serviceAccount) {
     console.log("Starting key validation...");
     const keyCheck = await validateServiceAccountKey(
       serviceAccount,
-      accessToken
+      accessToken,
     );
 
     // Collect account information
@@ -181,7 +181,7 @@ async function validateFirebaseProject(serviceAccount, accessToken) {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -190,11 +190,11 @@ async function validateFirebaseProject(serviceAccount, accessToken) {
       }
       if (response.status === 403) {
         throw new Error(
-          "Service account lacks Firebase project access permissions"
+          "Service account lacks Firebase project access permissions",
         );
       }
       throw new Error(
-        `Firebase API error: ${response.status} ${response.statusText}`
+        `Firebase API error: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -202,7 +202,7 @@ async function validateFirebaseProject(serviceAccount, accessToken) {
 
     if (projectData.state !== "ACTIVE") {
       throw new Error(
-        `Firebase project is not active. Current state: ${projectData.state}`
+        `Firebase project is not active. Current state: ${projectData.state}`,
       );
     }
 
@@ -232,7 +232,7 @@ async function validateFirestoreAccess(serviceAccount, accessToken) {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -243,7 +243,7 @@ async function validateFirestoreAccess(serviceAccount, accessToken) {
         throw new Error("Firestore database not found or not enabled");
       }
       throw new Error(
-        `Firestore API error: ${response.status} ${response.statusText}`
+        `Firestore API error: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -259,7 +259,7 @@ async function validateFirestoreAccess(serviceAccount, accessToken) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({}),
-        }
+        },
       );
 
       const canListCollections = collectionsResponse.ok;
@@ -299,18 +299,18 @@ async function validateServiceAccountKey(serviceAccount, accessToken) {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
       throw new Error(
-        `Keys API error: ${response.status} ${response.statusText}`
+        `Keys API error: ${response.status} ${response.statusText}`,
       );
     }
 
     const data = await response.json();
     const currentKey = data.keys?.find((key) =>
-      key.name.includes(serviceAccount.private_key_id)
+      key.name.includes(serviceAccount.private_key_id),
     );
 
     if (!currentKey) {
@@ -364,7 +364,7 @@ async function getAccessToken(serviceAccount) {
       exp: now + 3600,
       iat: now,
     },
-    serviceAccount.private_key
+    serviceAccount.private_key,
   );
 
   const response = await fetch("https://oauth2.googleapis.com/token", {
@@ -381,7 +381,7 @@ async function getAccessToken(serviceAccount) {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(
-      `Token request failed: ${errorData.error_description || errorData.error}`
+      `Token request failed: ${errorData.error_description || errorData.error}`,
     );
   }
 
@@ -413,25 +413,25 @@ async function createJWT(payload, privateKey) {
         privateKey
           .replace(/-----BEGIN PRIVATE KEY-----/, "")
           .replace(/-----END PRIVATE KEY-----/, "")
-          .replace(/\s/g, "")
-      )
+          .replace(/\s/g, ""),
+      ),
     ),
     {
       name: "RSASSA-PKCS1-v1_5",
       hash: "SHA-256",
     },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signature = await crypto.subtle.sign(
     "RSASSA-PKCS1-v1_5",
     key,
-    new TextEncoder().encode(signingInput)
+    new TextEncoder().encode(signingInput),
   );
 
   const encodedSignature = btoa(
-    String.fromCharCode(...new Uint8Array(signature))
+    String.fromCharCode(...new Uint8Array(signature)),
   )
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -459,7 +459,7 @@ async function getRootCollectionIds(projectId, accessToken) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({}),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -473,7 +473,7 @@ async function getRootCollectionIds(projectId, accessToken) {
 async function getDocumentsInCollection(
   projectId,
   accessToken,
-  collectionName
+  collectionName,
 ) {
   const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collectionName}`;
 
@@ -485,7 +485,7 @@ async function getDocumentsInCollection(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch documents for ${collectionName}: ${response.statusText}`
+      `Failed to fetch documents for ${collectionName}: ${response.statusText}`,
     );
   }
 
@@ -529,7 +529,7 @@ async function uploadDocument(
   accessToken,
   collectionName,
   docId,
-  docData
+  docData,
 ) {
   const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collectionName}/${docId}`;
 
@@ -610,14 +610,14 @@ app.post("/validate-service-account", async (c) => {
           success: false,
           error: "No service account file uploaded",
         },
-        400
+        400,
       );
     }
 
     let serviceAccount;
     try {
       serviceAccount = JSON.parse(
-        new TextDecoder().decode(serviceAccountFile.buffer)
+        new TextDecoder().decode(serviceAccountFile.buffer),
       );
     } catch (error) {
       isValidServiceAccount = false;
@@ -627,14 +627,13 @@ app.post("/validate-service-account", async (c) => {
           error: "Invalid JSON format in service account file",
           details: error.message,
         },
-        400
+        400,
       );
     }
 
     console.log("Starting comprehensive service account validation...");
-    const validationResult = await validateServiceAccountComplete(
-      serviceAccount
-    );
+    const validationResult =
+      await validateServiceAccountComplete(serviceAccount);
 
     if (!validationResult.valid) {
       isValidServiceAccount = false;
@@ -648,7 +647,7 @@ app.post("/validate-service-account", async (c) => {
             .map((e) => `${e.type}: ${e.message}`)
             .join("; "),
         },
-        400
+        400,
       );
     }
 
@@ -671,10 +670,34 @@ app.post("/validate-service-account", async (c) => {
         error: "Validation process failed",
         details: error.message,
       },
-      500
+      500,
     );
   }
 });
+
+function firestoreTimestampsToISO(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(firestoreTimestampsToISO);
+  } else if (obj && typeof obj === "object") {
+    const newObj = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (
+        value &&
+        typeof value === "object" &&
+        "seconds" in value &&
+        "nanoseconds" in value
+      ) {
+        newObj[key] = new Date(
+          value.seconds * 1000 + value.nanoseconds / 1e6,
+        ).toISOString();
+      } else {
+        newObj[key] = firestoreTimestampsToISO(value);
+      }
+    }
+    return newObj;
+  }
+  return obj;
+}
 
 app.post("/backup", async (c) => {
   try {
@@ -687,18 +710,18 @@ app.post("/backup", async (c) => {
           success: false,
           message: "Firebase credentials file is required.",
         },
-        400
+        400,
       );
     }
 
     try {
       const credentials = JSON.parse(
-        new TextDecoder().decode(credentialsFile.buffer)
+        new TextDecoder().decode(credentialsFile.buffer),
       );
       const accessToken = await getAccessToken(credentials);
       const collections = await getRootCollectionIds(
         credentials.project_id,
-        accessToken
+        accessToken,
       );
 
       const result = [];
@@ -707,11 +730,14 @@ app.post("/backup", async (c) => {
         const documents = await getDocumentsInCollection(
           credentials.project_id,
           accessToken,
-          collectionName
+          collectionName,
         );
+
+        const documentsWithISO = firestoreTimestampsToISO(documents);
+
         result.push({
           collection: collectionName,
-          documents,
+          documents: documentsWithISO,
         });
       }
 
@@ -727,7 +753,7 @@ app.post("/backup", async (c) => {
           message: "Error processing the backup.",
           details: error.message,
         },
-        500
+        500,
       );
     }
   } catch (error) {
@@ -738,7 +764,7 @@ app.post("/backup", async (c) => {
         message: "Error processing the backup request.",
         details: error.message,
       },
-      400
+      400,
     );
   }
 });
@@ -751,7 +777,7 @@ app.post("/upload-collection", async (c) => {
         error:
           "Valid service account required. Please validate your service account first.",
       },
-      401
+      401,
     );
   }
 
@@ -765,7 +791,7 @@ app.post("/upload-collection", async (c) => {
           success: false,
           error: "No collection files uploaded",
         },
-        400
+        400,
       );
     }
 
@@ -817,7 +843,7 @@ app.post("/upload-collection", async (c) => {
               accessToken,
               collectionName,
               docId,
-              doc
+              doc,
             );
 
             if (success) {
@@ -844,7 +870,7 @@ app.post("/upload-collection", async (c) => {
         console.error(
           "Error processing file:",
           file.originalFilename,
-          fileError
+          fileError,
         );
         results.push({
           collection: file.originalFilename.replace(/\.[^/.]+$/, ""),
@@ -866,7 +892,7 @@ app.post("/upload-collection", async (c) => {
         failedFiles: results.filter((r) => r.error).length,
         totalDocumentsUploaded: results.reduce(
           (sum, r) => sum + (r.documentsUploaded || 0),
-          0
+          0,
         ),
       },
       errors: results.filter((r) => r.error),
@@ -879,7 +905,7 @@ app.post("/upload-collection", async (c) => {
         error: "Error uploading collections",
         details: error.message,
       },
-      500
+      500,
     );
   }
 });
@@ -892,7 +918,7 @@ app.onError((err, c) => {
       error: "Internal server error",
       details: err.message,
     },
-    500
+    500,
   );
 });
 
